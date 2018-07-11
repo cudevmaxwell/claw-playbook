@@ -8,6 +8,8 @@ Until https://github.com/geerlingguy/ansible-role-drupal/issues/60 is fixed, you
 ```
 vagrant ssh
 sudo chmod u+w /var/www/drupal/compose.json
+exit
+vagrant provision
 ```
 
 when the playbook fails. 

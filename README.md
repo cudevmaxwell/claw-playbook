@@ -1,6 +1,17 @@
 # CLAW Vagrant Playbook
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
 
+## NOTICE
+
+Until https://github.com/geerlingguy/ansible-role-drupal/issues/60 is fixed, you need to
+
+```
+vagrant ssh
+sudo chmod u+w /var/www/drupal/compose.json
+```
+
+when the playbook fails. 
+
 ## Introduction
 
 This is an Ansible playbook for Islandora CLAW. It also has a vagrant file to bring up a development

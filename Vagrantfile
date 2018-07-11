@@ -25,9 +25,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = $vagrantBox
 
   # Configure home directory
-  home_dir = "/home/" + $vagrantUser
+  $home_dir = "/home/" + $vagrantUser
 
-# Configure sync directory
+  # Configure sync directory
   $sync_folder = $home_dir + "/islandora"
   config.vm.synced_folder ".", $sync_folder, owner: $vagrantUser, group: $vagrantUser, mount_options: ["dmode=770,fmode=440"]
 

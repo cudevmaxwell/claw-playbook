@@ -11,11 +11,8 @@ $memory = ENV.fetch("ISLANDORA_VAGRANT_MEMORY", "4096")
 $hostname = ENV.fetch("ISLANDORA_VAGRANT_HOSTNAME", "claw")
 $virtualBoxDescription = ENV.fetch("ISLANDORA_VAGRANT_VIRTUALBOXDESCRIPTION", "IslandoraCLAW")
 
-# Available boxes are 'ubuntu/xenial64' and 'centos/7'
-$vagrantBox = ENV.fetch("ISLANDORA_DISTRO", "ubuntu/xenial64")
-
-# On Ubuntu, user is ubuntu, on all others, user is vagrant
-$vagrantUser = if $vagrantBox == "ubuntu/xenial64" then "ubuntu" else "vagrant" end
+$vagrantBox = "ubuntu/xenial64"
+$vagrantUser = "vagrant"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "virtualbox" do |v|
@@ -30,8 +27,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Configure home directory
   home_dir = "/home/" + $vagrantUser
 
-  # Configure sync directory
-  config.vm.synced_folder ".", home_dir + "/islandora"
+# Configure sync directory
+  $sync_folder = $home_dir + "/islandora"
+  config.vm.synced_folder ".", $sync_folder, owner: $vagrantUser, group: $vagrantUser, mount_options: ["dmode=770,fmode=440"]
 
   config.vm.network :forwarded_port, guest: 8000, host: 8000 # Apache
   config.vm.network :forwarded_port, guest: 8080, host: 8080 # Tomcat
@@ -49,15 +47,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--description", $virtualBoxDescription]
   end
 
-  config.vm.provision :ansible do |ansible|
+  config.vm.provision :ansible_local do |ansible|
+    ansible.provisioning_path = $sync_folder
     ansible.playbook = "playbook.yml"
     ansible.galaxy_role_file = "requirements.yml"
     ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file} --roles-path=roles/external"
     ansible.limit = "all"
     ansible.inventory_path = "inventory/vagrant"
-    ansible.host_vars = {
-      "all" => { "ansible_ssh_user" => $vagrantUser }
-    }
     ansible.extra_vars = { "islandora_distro" => $vagrantBox }
   end
 
